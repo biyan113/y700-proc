@@ -2,9 +2,20 @@
 # 在这台 Mac 上编出平板用的进程管理 App。
 set -e
 cd "$(dirname "$0")"
-SDK="$HOME/Library/Android/sdk"
+if [ -n "${ANDROID_HOME:-}" ] && [ -d "$ANDROID_HOME" ]; then
+  SDK="$ANDROID_HOME"
+elif [ -d "$HOME/Library/Android/sdk" ]; then
+  SDK="$HOME/Library/Android/sdk"
+else
+  echo "找不到 Android SDK。设置 ANDROID_HOME，或安装到 \$HOME/Library/Android/sdk" >&2
+  exit 1
+fi
 BT="$SDK/build-tools/36.0.0"
 JAR="$SDK/platforms/android-34/android.jar"
+if [ ! -x "$BT/aapt2" ] || [ ! -f "$JAR" ]; then
+  echo "需要 platforms;android-34 和 build-tools;36.0.0，当前 SDK 是 $SDK" >&2
+  exit 1
+fi
 rm -rf build
 mkdir -p build/classes build/dex res/mipmap-xxhdpi src/app/y700/proc
 
